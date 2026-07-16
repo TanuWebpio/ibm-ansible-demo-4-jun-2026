@@ -1,0 +1,40 @@
+---
+# Deploys ibm-ansible-demo to Kubernetes.
+# Run manually for practice with:
+#   ansible-playbook -i inventory.ini deploy-playbook.yml --extra-vars "image_tag=latest"
+
+- name: Deploy ibm-ansible-demo to Kubernetes
+  hosts: local
+  gather_facts: false
+
+  vars:
+    image_name: "vamandeshmukh/ibm-ansible-demo"
+    deployment_name: "ibm-ansible-demo"
+    container_name: "ibm-ansible-demo"
+    image_tag: "latest"
+
+  tasks:
+
+    - name: Ensure Kubernetes uses the pushed image (registry pull allowed)
+      ansible.builtin.command:
+        cmd: >
+          kubectl patch deployment {{ deployment_name }}
+          -p "{\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"name\":\"{{ container_name }}\",\"imagePullPolicy\":\"IfNotPresent\"}]}}}}"
+      register: patch_result
+      changed_when: "'no change' not in patch_result.stdout"
+
+    - name: Point the deployment at the new image tag
+      ansible.builtin.command:
+        cmd: "kubectl set image deployment/{{ deployment_name }} {{ container_name }}={{ image_name }}:{{ image_tag }}"
+      register: set_image_result
+      changed_when: "'image updated' in set_image_result.stdout"
+
+    - name: Wait for the rollout to finish
+      ansible.builtin.command:
+        cmd: "kubectl rollout status deployment/{{ deployment_name }} --timeout=90s"
+      register: rollout_result
+      changed_when: false
+
+    - name: Show rollout result
+      ansible.builtin.debug:
+        msg: "{{ rollout_result.stdout }}"

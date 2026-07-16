@@ -1,0 +1,18 @@
+{
+  "name": "ibm-ansible-demo",
+  "version": "1.0.0",
+  "description": "Minimal Node.js app for demoing a Git -> Jenkins -> Docker -> DockerHub -> Kubernetes pipeline",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --colors"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
+  }
+}

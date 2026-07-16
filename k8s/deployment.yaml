@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ibm-ansible-demo
+  labels:
+    app: ibm-ansible-demo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ibm-ansible-demo
+  template:
+    metadata:
+      labels:
+        app: ibm-ansible-demo
+    spec:
+      containers:
+        - name: ibm-ansible-demo
+          image: vamandeshmukh/ibm-ansible-demo:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          env:
+            - name: APP_VERSION
+              value: "1.0.0"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 3
+            periodSeconds: 5
